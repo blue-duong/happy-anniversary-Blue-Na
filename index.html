@@ -1,0 +1,81 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Truy Tìm Kho Báu Trái Tim</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="romantic-title">Happy 1-month anniversary</h1>
+  </header>
+
+  <div class="bg-gradient" aria-hidden="true"></div>
+  <div class="bg-decor" aria-hidden="true">
+    <span class="heart-shape h1"></span>
+    <span class="heart-shape h2"></span>
+    <span class="heart-shape h3"></span>
+    <span class="heart-shape h4"></span>
+    <span class="heart-shape h5"></span>
+    <span class="heart-shape h6"></span>
+  </div>
+  <div class="bg-text" aria-hidden="true">
+    <h3 class="text t2">Blue &amp; Na</h3>
+  </div>
+  <div id="fx-layer" class="fx-layer" aria-hidden="true"></div>
+  <button id="help-btn" class="help-sticker" aria-label="Xem hướng dẫn">?</button>
+  <div id="help-tooltip" class="help-tooltip" hidden>Nhấn vào nút ? để xem hướng dẫn</div>
+  <div id="help-modal" class="help-modal" hidden>
+    <div class="card">
+      <h3>Hướng dẫn</h3>
+      <ul>
+        <li>Trả lời lần lượt 5 câu hỏi để mở mảnh ảnh.</li>
+        <li>Hãy trả lời cẩn thận để có câu trả lời đúng</li>
+        <li>Sẽ có món quà bất ngờ khi hoàn thành xong thử thách</li>
+        <li>Bé Na cố lên nha!!!</li>
+      </ul>
+      <button class="close" type="button" aria-label="Đóng">Đóng</button>
+    </div>
+  </div>
+
+  <main class="container">
+    <section class="puzzle-section" aria-label="Mô tả ảnh hoàn chỉnh: Một trái tim màu hồng pastel trên nền trắng, được ghép từ 5 mảnh, viền đen mảnh; có hiệu ứng lấp lánh nhẹ như kim tuyến.">
+      <div class="puzzle">
+        <img src="image1.jpg" alt="Ảnh kỷ niệm" class="puzzle-img" />
+
+        <div class="cover c1" data-piece="1"></div>
+        <div class="cover c2" data-piece="2"></div>
+        <div class="cover c3" data-piece="3"></div>
+        <div class="cover c4" data-piece="4"></div>
+        <div class="cover c5" data-piece="5"></div>
+        <video id="puzzle-video" class="puzzle-video" src="music.mp4" playsinline controls hidden></video>
+        <div id="puzzle-congrats" class="puzzle-congrats" hidden>Chúc mừng! Trái tim đã hoàn chỉnh 💖</div>
+      </div>
+      <div class="progress" id="progress">Mảnh ghép: 0/5</div>
+    </section>
+
+    <section class="qa-section" aria-live="polite">
+      <div id="question-text" class="question-text"></div>
+      <div class="input-row">
+        <input id="answer-input" type="text" placeholder="Nhập đáp án..." autocomplete="off" />
+        <button id="submit-btn" type="button">Trả lời</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+    </section>
+
+    <section id="final-section" class="final-section" hidden>
+      <div class="final-visual">
+        <video id="final-video" class="final-video" src="music.mp4" controls preload="metadata" playsinline hidden></video>
+      </div>
+      <div class="final-message" id="final-message" hidden>
+        Chúc mừng 1 tháng yêu xa! Dù cách xa, trái tim vẫn chung nhịp. Hẹn ngày gặp nhau thật sớm.
+      </div>
+      <button id="restart-btn" type="button" class="restart-btn">Chơi lại</button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

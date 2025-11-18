@@ -1,0 +1,316 @@
+// script.js
+const data = {
+  questions: [
+    { q: "Thành phố em đang ở là gì?", a: ["1", "hanoi", "hà nội"] },
+    { q: "Ứng dụng nhắn tin chính của chúng ta?", a: ["2"] },
+    { q: "Món ăn giao đầu tiên cả hai cùng ăn là gì?", a: ["3", "bún chả", "buncha"] },
+    { q: "Thời điểm mình hay gọi video mỗi tối (HH:MM)?", a: ["4", "2130"] },
+    { q: "Biệt danh anh đặt cho em là gì?", a: ["5", "mèo con", "meocon"] }
+  ],
+  finalMessage:
+    "Chúc mừng 1 tháng yêu xa! Dù cách xa, trái tim vẫn chung nhịp. Hẹn ngày gặp nhau thật sớm.",
+  finalAlt:
+    "Một trái tim màu hồng pastel trên nền trắng, được ghép từ 5 mảnh, viền đen mảnh; có hiệu ứng lấp lánh nhẹ."
+};
+
+const $qText = document.getElementById("question-text");
+const $input = document.getElementById("answer-input");
+const $submit = document.getElementById("submit-btn");
+const $feedback = document.getElementById("feedback");
+const $progress = document.getElementById("progress");
+const $final = document.getElementById("final-section");
+const $restart = document.getElementById("restart-btn");
+const $video = document.getElementById("final-video");
+const $finalMessage = document.getElementById("final-message");
+const $stickyAnniv = document.getElementById("sticky-anniv");
+const $helpBtn = document.getElementById("help-btn");
+const $helpModal = document.getElementById("help-modal");
+const $helpClose = document.querySelector("#help-modal .close");
+const $fxLayer = document.getElementById("fx-layer");
+const $helpTooltip = document.getElementById("help-tooltip");
+const $puzzleVideo = document.getElementById("puzzle-video");
+const $puzzleCongrats = document.getElementById("puzzle-congrats");
+
+const covers = Array.from(document.querySelectorAll(".cover"));
+const TOTAL_PIECES = covers.length;
+let idx = 0;
+
+function normalizeAnswer(s) {
+  return String(s)
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/[^a-z0-9:\/ ]/g, "");
+}
+
+function match(input, accepted) {
+  const n = normalizeAnswer(input);
+  return accepted.some((a) => {
+    const expected = normalizeAnswer(a);
+    if (/[:/]/.test(expected)) {
+      const cleanExpected = expected.replace(/[^a-z0-9]/g, "");
+      const cleanInput = n.replace(/[^a-z0-9]/g, "");
+      return cleanInput === cleanExpected;
+    }
+    return n === expected;
+  });
+}
+
+function renderQuestion() {
+  if (idx >= data.questions.length) return;
+  const q = data.questions[idx];
+  $qText.textContent = q.q;
+  $input.value = "";
+  $input.focus();
+  $feedback.textContent = "";
+  $feedback.className = "feedback";
+  $progress.textContent = `Mảnh ghép: ${idx}/${TOTAL_PIECES}`;
+}
+
+function revealPiece(pieceIndex) {
+  const target = covers.find((c) => c.getAttribute("data-piece") === String(pieceIndex));
+  if (target) target.classList.add("revealed");
+}
+
+function handleSubmit() {
+  if (idx >= data.questions.length) return;
+  const q = data.questions[idx];
+  const val = $input.value;
+  if (!val) {
+    $feedback.textContent = "Hãy nhập đáp án nhé!";
+    $feedback.className = "feedback err";
+    return;
+  }
+  if (match(val, q.a)) {
+    revealPiece(idx + 1);
+    idx += 1;
+    $feedback.textContent = "Đúng rồi! Mảnh ghép đã khớp.";
+    $feedback.className = "feedback ok";
+    playCorrectFx();
+    $progress.textContent = `Mảnh ghép: ${idx}/${TOTAL_PIECES}`;
+    if (idx === TOTAL_PIECES) {
+      finishGame();
+    } else {
+      setTimeout(renderQuestion, 1000);
+    }
+  } else {
+    $feedback.textContent = "Sai rồi! Hãy thử lại.";
+    $feedback.className = "feedback err";
+    playWrongFx();
+  }
+}
+
+function finishGame() {
+  $qText.textContent = "Trái tim đã hoàn chỉnh!";
+  $input.disabled = true;
+  $submit.disabled = true;
+  document.querySelector(".puzzle-section").setAttribute("aria-label", data.finalAlt);
+  setTimeout(() => {
+    if ($puzzleVideo) {
+      try {
+        $puzzleVideo.hidden = false;
+        $puzzleVideo.currentTime = 0;
+        const p = $puzzleVideo.play();
+        if (p && typeof p.then === "function") p.catch(() => {});
+      } catch {}
+    }
+    if ($puzzleCongrats) $puzzleCongrats.hidden = false;
+  }, 1000);
+}
+
+function playCorrectFx() {
+  if ($fxLayer) {
+    spawnHearts(12, false);
+  }
+  playCorrectSound();
+}
+function playWrongFx() {
+  const row = document.querySelector('.input-row');
+  if (row) { row.classList.add('shake'); setTimeout(() => row.classList.remove('shake'), 420); }
+  if ($fxLayer) {
+    spawnHearts(6, true);
+  }
+  playWrongSound();
+}
+function spawnHearts(n = 10, broken = false) {
+  const box = document.querySelector('.input-row')?.getBoundingClientRect();
+  const cx = (box?.left || window.innerWidth/2) + (box?.width || 0)/2 + window.scrollX;
+  const cy = (box?.top || window.innerHeight/2) + (box?.height || 0)*0.5 + window.scrollY - 6;
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement('span');
+    el.className = 'fx-heart' + (broken ? ' broken' : '');
+    const dx = (Math.random() - 0.5) * 120;
+    const dy = -60 - Math.random() * 90;
+    el.style.left = `${cx + (Math.random()-0.5)*60}px`;
+    el.style.top = `${cy + (Math.random()-0.5)*14}px`;
+    el.style.setProperty('--dx', `${dx}px`);
+    el.style.setProperty('--dy', `${dy}px`);
+    $fxLayer.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+}
+let audioCtx;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function beep(freq, dur, type = 'sine', vol = 0.06) {
+  ensureAudio();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type;
+  o.frequency.value = freq;
+  o.connect(g);
+  g.connect(audioCtx.destination);
+  g.gain.setValueAtTime(vol, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+  o.start();
+  o.stop(audioCtx.currentTime + dur);
+}
+function playCorrectSound() {
+  beep(880, 0.12, 'triangle', 0.08);
+  setTimeout(() => beep(1320, 0.12, 'triangle', 0.06), 100);
+}
+function playWrongSound() {
+  beep(220, 0.18, 'sawtooth', 0.05);
+}
+
+function restart() {
+  idx = 0;
+  covers.forEach((c) => c.classList.remove("revealed"));
+  $final.hidden = true;
+  $input.disabled = false;
+  $submit.disabled = false;
+  if ($finalMessage) $finalMessage.hidden = true;
+  if ($video) {
+    try { $video.pause(); $video.currentTime = 0; $video.hidden = true; } catch {}
+  }
+  if ($puzzleVideo) {
+    try { $puzzleVideo.pause(); $puzzleVideo.currentTime = 0; $puzzleVideo.hidden = true; } catch {}
+  }
+  if ($puzzleCongrats) $puzzleCongrats.hidden = true;
+  renderQuestion();
+
+(function setupStickyAnniv(){
+  const header = document.querySelector('.site-header');
+  if (!$stickyAnniv || !header) return;
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      const e = entries[0];
+      if (e && e.isIntersecting) {
+        $stickyAnniv.hidden = true;
+        $stickyAnniv.classList.remove('show');
+      } else {
+        $stickyAnniv.hidden = false;
+        $stickyAnniv.classList.add('show');
+      }
+    }, { root: null, threshold: 0 });
+    io.observe(header);
+  } else {
+    const onScroll = () => {
+      const rect = header.getBoundingClientRect();
+      if (rect.bottom <= 0) { $stickyAnniv.hidden = false; $stickyAnniv.classList.add('show'); }
+      else { $stickyAnniv.hidden = true; $stickyAnniv.classList.remove('show'); }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+})();
+}
+
+$submit.addEventListener("click", handleSubmit);
+$input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") handleSubmit();
+});
+$restart.addEventListener("click", restart);
+if ($helpBtn && $helpModal) {
+  const openGuide = () => {
+    $helpModal.hidden = false;
+    if ($helpTooltip) $helpTooltip.hidden = true;
+    $helpBtn.classList.remove('pulse');
+    try { localStorage.setItem('guideHintSeen','1'); } catch {}
+  };
+  $helpBtn.addEventListener('click', openGuide);
+  if ($helpTooltip) $helpTooltip.addEventListener('click', openGuide);
+  if ($helpClose) $helpClose.addEventListener('click', () => { $helpModal.hidden = true; });
+  $helpModal.addEventListener('click', (e) => { if (e.target === $helpModal) $helpModal.hidden = true; });
+}
+
+renderQuestion();
+
+(function initHelpHint(){
+  if ($helpTooltip && $helpBtn) {
+    let seen = false;
+    try { seen = localStorage.getItem('guideHintSeen') === '1'; } catch {}
+    if (!seen) { $helpTooltip.hidden = false; $helpBtn.classList.add('pulse'); }
+  }
+})();
+function spawnSparkle() {
+  const s = document.createElement("div");
+  s.className = "sparkle";
+  s.style.left = Math.random() * window.innerWidth + "px";
+  s.style.top = Math.random() * window.innerHeight + "px";
+  document.body.appendChild(s);
+  setTimeout(() => s.remove(), 3000);
+}
+setInterval(spawnSparkle, 220);
+
+
+/* ===================== */
+/* CUTE FLOATING ICONS   */
+/* ===================== */
+const cuteIcons = ["💖", "✨", "🌸", "💗"];
+function spawnCuteIcon() {
+  const el = document.createElement("div");
+  el.className = "floating-icon";
+  el.textContent = cuteIcons[Math.floor(Math.random() * cuteIcons.length)];
+  el.style.left = Math.random() * window.innerWidth + "px";
+  el.style.top = Math.random() * window.innerHeight + "px";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+setInterval(spawnCuteIcon, 4800);
+
+
+/* ===================== */
+/* PINK SNOW             */
+/* ===================== */
+function spawnSnow() {
+  const n = document.createElement("div");
+  n.className = "snow";
+  n.style.left = Math.random() * window.innerWidth + "px";
+  n.style.top = "-10px";
+  n.style.opacity = Math.random() * 0.8 + 0.2;
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 6000);
+}
+setInterval(spawnSnow, 180);
+
+
+/* ===================== */
+/* UI CLICK SOUND        */
+/* ===================== */
+document.addEventListener("click", () => {
+  try { beep(600, 0.05, "sine", 0.03); } catch {}
+});
+
+
+/* ===================== */
+/* FINAL TYPEWRITER      */
+/* ===================== */
+function applyTypewriter() {
+  if ($finalMessage) {
+    $finalMessage.classList.add("typewriter");
+  }
+}
+
+/* Override finishGame để thêm glow + typewriter */
+const oldFinish = finishGame;
+finishGame = function () {
+  oldFinish();  
+  setTimeout(applyTypewriter, 300);
+
+  // thêm hiệu ứng glow cho video
+  if ($video) $video.classList.add("glow");
+};
