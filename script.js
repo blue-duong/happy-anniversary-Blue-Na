@@ -1,14 +1,15 @@
 // script.js
 const data = {
   questions: [
-    { q: "Thành phố em đang ở là gì?", a: ["1", "hanoi", "hà nội"] },
-    { q: "Ứng dụng nhắn tin chính của chúng ta?", a: ["2"] },
-    { q: "Món ăn giao đầu tiên cả hai cùng ăn là gì?", a: ["3", "bún chả", "buncha"] },
-    { q: "Thời điểm mình hay gọi video mỗi tối (HH:MM)?", a: ["4", "2130"] },
-    { q: "Biệt danh anh đặt cho em là gì?", a: ["5", "mèo con", "meocon"] }
+    { q: "Nhờ loại rượu nào mà mình đến được với nhau?", a: ["Sake", "sake", "ruou sake"] },
+    { q: "Hồi lúc còn cốt Na đồn a Dương là gì? :)))))", a: ["gay", "bede", "bê đê"] },
+    { q: "Cho biết 1 trong nhiều từ mà hai đứa dùng để ẩn dụ để nói với nhau ở chỗ đông người ?", a: ["rán gà", "nướng", "grill", "hầm gà"
+    ] },
+    { q: "Na lúc lớp 9 đã nói với bạn lớp học kèm lớp tiếng Anh sẽ không bao giờ làm gì?", a: ["son môi", "son moi"] },
+    { q: "Chuẩn bị mở món quà bí mật rồi. Na có chịu iu a Blue quài luôn k? :33", a: ["ok", "chịu", "yes", "e iu a", "em yêu anh", "em iu anh"] }
   ],
-  finalMessage:
-    "Chúc mừng 1 tháng yêu xa! Dù cách xa, trái tim vẫn chung nhịp. Hẹn ngày gặp nhau thật sớm.",
+  finalMessage: `Chúc mừng 1 tháng chúng mình yêu nhau! Mình có lẽ cũng hiểu nhau hơn, yêu nhiều hơn. Chúc cho a và Na sẽ luôn yêu nhau mãi, dự định của 2 đứa sẽ được thuận lợi. A mong rằng sau này sẽ được chăm sóc e, bảo vệ e, là chỗ để e có thể dựa vào. Như a đã nói á, A vẫn luôn ở đây và hướng về Na, nên là Na cứ yên tâm ở anh ha. Yêu e ❤️.
+- Blue -`,
   finalAlt:
     "Một trái tim màu hồng pastel trên nền trắng, được ghép từ 5 mảnh, viền đen mảnh; có hiệu ứng lấp lánh nhẹ."
 };
